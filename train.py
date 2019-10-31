@@ -7,6 +7,8 @@ import os
 import sys
 import logging
 import sklearn.linear_model
+from scipy import stats
+import openpyxl
 EXP_COL = ['km', 'price']
 
 
@@ -50,18 +52,47 @@ def extract_data(_file):
     x_ = df.iloc[:len(df), 0].values
     y_ = df.iloc[:len(df), 1].values
 
-    x_ = x_.reshape(-1, 1)
+    # Meth 1 ------------------------
+    slope, intercept, r_value, p_value, std_err = stats.linregress(x_, y_)
 
+    print(f'r_2 = {r_value}')
+
+    def predict(x):
+        return slope * x + intercept
+
+    fitLine = predict(x_)
+    axes = plt.axes()
+    axes.grid()  # dessiner une grille pour une meilleur lisibilité du graphe
+    plt.scatter(x_, y_)
+    plt.plot(x_, fitLine, c='r')
+    plt.show()
+
+    # Meth 2 ---------------------
+    x_ = x_.reshape(-1, 1)
+    y_ = y_.reshape(-1, 1)
     regression = sklearn.linear_model.LinearRegression()
     regression.fit(x_, y_)
 
-    print(regression.coef_[0])
-    print(regression.intercept_)
+    print(f'Theta0 = {regression.intercept_[0]}')
+    print(f'Theta1 = {regression.coef_[0]}')
+    print(regression.predict(x_))
 
     df["predicted"] = regression.predict(x_)
 
     print(f'test_me = {240000*regression.coef_[0] + regression.intercept_}')
-    # print(f'test_le = {regression.predict()}')
+
+    list_ = [f'θ{e + 1}' for e in range(0, len(regression.coef_[0]))]
+
+    print(list_)
+
+    coefs = {'θ0': regression.intercept_[0]}
+    coefs.update(zip([f'θ{e + 1}' for e in range(0, len(regression.coef_[0]))], list(regression.coef_[0])))
+
+    # Saving coefs and metrics into METRICS_DIR
+    os.makedirs('thetas', exist_ok=True)
+    df_coefs = pd.DataFrame(coefs.items(), columns=['COEFS_NAMES', 'COEFS'])
+    df_coefs.to_excel(os.path.join('thetas', f'coefs.xlsx'))
+
 
     plt.style.use('ggplot')
     fig, ax1 = plt.subplots()
