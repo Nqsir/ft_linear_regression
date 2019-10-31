@@ -55,10 +55,12 @@ def extract_data(_file):
     # Meth 1 ------------------------
     slope, intercept, r_value, p_value, std_err = stats.linregress(x_, y_)
 
-    print(f'r_2 = {r_value}')
-
     def predict(x):
         return slope * x + intercept
+
+    print(f'Theta0 = {intercept}')
+    print(f'Theta1 = {slope}')
+    print(predict(x_))
 
     fitLine = predict(x_)
     axes = plt.axes()
@@ -88,11 +90,12 @@ def extract_data(_file):
     coefs = {'θ0': regression.intercept_[0]}
     coefs.update(zip([f'θ{e + 1}' for e in range(0, len(regression.coef_[0]))], list(regression.coef_[0])))
 
+    print(coefs)
+
     # Saving coefs and metrics into METRICS_DIR
     os.makedirs('thetas', exist_ok=True)
     df_coefs = pd.DataFrame(coefs.items(), columns=['COEFS_NAMES', 'COEFS'])
     df_coefs.to_excel(os.path.join('thetas', f'coefs.xlsx'))
-
 
     plt.style.use('ggplot')
     fig, ax1 = plt.subplots()
