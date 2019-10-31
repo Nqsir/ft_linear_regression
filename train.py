@@ -10,6 +10,9 @@ import sklearn.linear_model
 from scipy import stats
 import openpyxl
 EXP_COL = ['km', 'price']
+LEARNING_RATE_THETA0 = 0.01
+LEARNING_RATE_THETA1 = 0.0000000000001
+CONVERGENCE = 0.01
 
 
 def display_errors_dict(err_):
@@ -57,33 +60,58 @@ def check_data(_file):
 
 def extract_data(_file):
     df = pd.read_csv(_file)
-    x_ = df.iloc[:len(df), 0].values
-    y_ = df.iloc[:len(df), 1].values
+    mileage = df.iloc[:, 0].values
+    price = df.iloc[:, 1].values
+    theta0 = 0
+    theta1 = 0
+    prev_theta0 = 1
+    prev_theta1 = 1
+    nbr_data = len(mileage)
+    i = 0
+    test_it = []
+    test_thet0 = []
+    test_thet1 = []
 
-    # TESTO
+    # Ok Working, but the convergence is somehow way to high, need to process some tests on variables, i.e.
+    #       LEARNING_RATE_THETA0 = 0.01
+    #       LEARNING_RATE_THETA1 = 0.0000000000001
+    #       CONVERGENCE = 0.01
 
-    # x = [0.]
-    #
-    # def df(x):
-    #     return 4 * x * np.cos(x) - 2 * x * x * np.sin(x) - 5
-    #
-    # slope = df(x[0])
-    # print(f'slope = {slope}')
-    # alpha = 0.05
-    #
-    # x.append(x[0] - alpha * slope)
-    # print(x[1])
-    # x.append(x[1] - alpha * df(x[1]))
-    # print(x[2])
-    #
-    # x = [0.]
-    # for i in range(20):
-    #     x.append(x[i] - alpha * df(x[i]))
-    # print(x)
-    # return
+    while abs(theta0 - prev_theta0) + abs(theta1 - prev_theta1) > CONVERGENCE:
+        prev_theta0 = theta0
+        prev_theta1 = theta1
+        tmp_theta0 = LEARNING_RATE_THETA0 * (1 / nbr_data) \
+                     * sum([(theta0 + theta1 * mileage[i]) - price[i] for i in range(nbr_data)])
+        tmp_theta1 = LEARNING_RATE_THETA1 * (1 / nbr_data)\
+                     * sum([((theta0 + theta1 * mileage[i]) - price[i]) * mileage[i] for i in range(nbr_data)])
+        theta0 = theta0 - tmp_theta0
+        theta1 = theta1 - tmp_theta1
+        test_it.append(i)
+        test_thet0.append(tmp_theta0)
+        test_thet1.append(tmp_theta1)
+        i += 1
+
+    fig, ax1 = plt.subplots()
+    fig.set_figheight(5.5)
+    fig.set_figwidth(12.5)
+    line1, = ax1.plot(test_it, test_thet0, 'bo', label='thet0', markersize='2')
+    ax1.set_xlabel('Iterations')
+    ax1.set_ylabel('Updated Theta0')
+    ax2 = ax1.twinx()
+    line2, = ax2.plot(test_it, test_thet1, 'ro', label='thet1', markersize='2')
+    ax2.set_ylabel('Updated Theta1')
+    ax1.legend(handles=[line1, line2], loc=1, fontsize=12)
+    plt.show()
+
+    prediction = theta0 + theta1 * mileage
+    print(prediction)
+
+    # plt.scatter(mileage, price)
+    # plt.plot(mileage, prediction, c='r')
+    # plt.show()
 
     # Meth 1 ------------------------
-    slope, intercept, r_value, p_value, std_err = stats.linregress(x_, y_)
+    slope, intercept, r_value, p_value, std_err = stats.linregress(mileage, price)
 
     def predict(x):
         return slope * x + intercept
@@ -92,48 +120,48 @@ def extract_data(_file):
     logger.debug(f'Theta1 = {slope}')
     logger.debug(f'r**2 = {r_value**2}')
 
-    fitLine = predict(x_)
-    axes = plt.axes()
-    axes.grid()  # dessiner une grille pour une meilleur lisibilité du graphe
-    plt.scatter(x_, y_)
-    plt.plot(x_, fitLine, c='r')
-    plt.show()
+    fitLine = predict(mileage)
+    # axes = plt.axes()
+    # axes.grid()  # dessiner une grille pour une meilleur lisibilité du graphe
+    # plt.scatter(mileage, price)
+    # plt.plot(mileage, fitLine, c='r')
+    # plt.show()
+
+    print(f'Test diff = {prediction - fitLine}')
 
     # Meth 2 ------------------------
-    x_ = x_.reshape(-1, 1)
-    y_ = y_.reshape(-1, 1)
-    regression = sklearn.linear_model.LinearRegression()
-    regression.fit(x_, y_)
+    # mileage = mileage.reshape(-1, 1)
+    # price = price.reshape(-1, 1)
+    # regression = sklearn.linear_model.LinearRegression()
+    # regression.fit(mileage, price)
+    #
+    # logger.debug(f'Theta0 = {regression.intercept_[0]}')
+    # logger.debug(f'Theta1 = {regression.coef_[0]}')
+    # df["predicted"] = regression.predict(mileage)
+    #
+    # coefs = {'θ0': regression.intercept_[0]}
+    # coefs.update(zip([f'θ{e + 1}' for e in range(0, len(regression.coef_[0]))], list(regression.coef_[0])))
 
-    logger.debug(f'Theta0 = {regression.intercept_[0]}')
-    logger.debug(f'Theta1 = {regression.coef_[0]}')
-    df["predicted"] = regression.predict(x_)
-
-    coefs = {'θ0': regression.intercept_[0]}
-    coefs.update(zip([f'θ{e + 1}' for e in range(0, len(regression.coef_[0]))], list(regression.coef_[0])))
-
-    # Meth 3 ------------------------
-
-    logger.debug(f'coefs = {coefs}')
-
-    # Saving coefs and metrics into METRICS_DIR
-    os.makedirs('thetas', exist_ok=True)
-    df_coefs = pd.DataFrame(coefs.items(), columns=['COEFS_NAMES', 'COEFS'])
-    df_coefs.to_excel(os.path.join('thetas', f'coefs.xlsx'))
-
-    plt.style.use('ggplot')
-    fig, ax1 = plt.subplots()
-    fig.set_figheight(5.5)
-    fig.set_figwidth(7.5)
-    ax1.set_title(f'ft_linear_regression, Reliability : R² = {sklearn.metrics.r2_score(df["predicted"], y_):.4f}',
-                  fontsize=14)
-    ax1.set_xlabel(f'{EXP_COL[0]}')
-    ax1.set_ylabel(f'{EXP_COL[1]}')
-    line1, = ax1.plot(x_, y_, 'co', zorder=1, label='Dataset')
-    line2, = ax1.plot(x_, df.iloc[:len(df), 2].values, 'r', zorder=1, label='Predicted')
-    ax1.grid(linestyle='-', linewidth=1)
-    ax1.legend(handles=[line1, line2], loc=1, fontsize=12)
-    plt.show()
+    # logger.debug(f'coefs = {coefs}')
+    #
+    # # Saving coefs and metrics into METRICS_DIR
+    # os.makedirs('thetas', exist_ok=True)
+    # df_coefs = pd.DataFrame(coefs.items(), columns=['COEFS_NAMES', 'COEFS'])
+    # df_coefs.to_excel(os.path.join('thetas', f'coefs.xlsx'))
+    #
+    # plt.style.use('ggplot')
+    # fig, ax1 = plt.subplots()
+    # fig.set_figheight(5.5)
+    # fig.set_figwidth(7.5)
+    # ax1.set_title(f'ft_linear_regression, Reliability : R² = {sklearn.metrics.r2_score(df["predicted"], price):.4f}',
+    #               fontsize=14)
+    # ax1.set_xlabel(f'{EXP_COL[0]}')
+    # ax1.set_ylabel(f'{EXP_COL[1]}')
+    # line1, = ax1.plot(mileage, price, 'co', zorder=1, label='Dataset')
+    # line2, = ax1.plot(mileage, df.iloc[:len(df), 2].values, 'r', zorder=1, label='Predicted')
+    # ax1.grid(linestyle='-', linewidth=1)
+    # ax1.legend(handles=[line1, line2], loc=1, fontsize=12)
+    # plt.show()
 
 
 if __name__ == '__main__':
