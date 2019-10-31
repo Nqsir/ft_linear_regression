@@ -15,9 +15,9 @@ EXP_COL = ['km', 'price']
 def display_errors_dict(err_):
     dictionary = {
         'col': f'Unexpected column: \x1b[1;37;41m{err_[1]} \x1b[0m\n\n',
-        'value': f'Unexpected value: \x1b[1;37;41m {err_[1]} \x1b[0m\n\n',
+        'val': f'Unexpected value: \x1b[1;37;41m {err_[1]} \x1b[0m\n\n',
+        'neg': f'Unexpected negative value: \x1b[1;37;41m {err_[1]} \x1b[0m\n\n',
     }
-
     print(f'\n{dictionary[err[0]]}')
 
 
@@ -33,7 +33,6 @@ def check_data(_file):
         if df_t != "float64" and df_t != "int64":
             error = df[~df.applymap(np.isreal).all(1)]
             for it in error:
-                print(error[it])
                 for e, val in enumerate(error[it]):
                     try:
                         val = float(val)
@@ -44,7 +43,16 @@ def check_data(_file):
 
                         # And construct the line edition to display error
                         wrong = f'value: {value:}, line: {line:}, column: {column:}'
-                        return 'value', wrong
+                        return 'val', wrong
+
+    wrong = ''
+    for col in act_col:
+        for e, v in enumerate(df[col]):
+            if float(v) < 0:
+                wrong = f'value: {v:}, line: {e:}, column: {col:}'
+
+        if wrong:
+            return 'neg', wrong
 
 
 def extract_data(_file):
@@ -52,15 +60,37 @@ def extract_data(_file):
     x_ = df.iloc[:len(df), 0].values
     y_ = df.iloc[:len(df), 1].values
 
+    # TESTO
+
+    # x = [0.]
+    #
+    # def df(x):
+    #     return 4 * x * np.cos(x) - 2 * x * x * np.sin(x) - 5
+    #
+    # slope = df(x[0])
+    # print(f'slope = {slope}')
+    # alpha = 0.05
+    #
+    # x.append(x[0] - alpha * slope)
+    # print(x[1])
+    # x.append(x[1] - alpha * df(x[1]))
+    # print(x[2])
+    #
+    # x = [0.]
+    # for i in range(20):
+    #     x.append(x[i] - alpha * df(x[i]))
+    # print(x)
+    # return
+
     # Meth 1 ------------------------
     slope, intercept, r_value, p_value, std_err = stats.linregress(x_, y_)
 
     def predict(x):
         return slope * x + intercept
 
-    print(f'Theta0 = {intercept}')
-    print(f'Theta1 = {slope}')
-    print(predict(x_))
+    logger.debug(f'Theta0 = {intercept}')
+    logger.debug(f'Theta1 = {slope}')
+    logger.debug(f'r**2 = {r_value**2}')
 
     fitLine = predict(x_)
     axes = plt.axes()
@@ -69,28 +99,22 @@ def extract_data(_file):
     plt.plot(x_, fitLine, c='r')
     plt.show()
 
-    # Meth 2 ---------------------
+    # Meth 2 ------------------------
     x_ = x_.reshape(-1, 1)
     y_ = y_.reshape(-1, 1)
     regression = sklearn.linear_model.LinearRegression()
     regression.fit(x_, y_)
 
-    print(f'Theta0 = {regression.intercept_[0]}')
-    print(f'Theta1 = {regression.coef_[0]}')
-    print(regression.predict(x_))
-
+    logger.debug(f'Theta0 = {regression.intercept_[0]}')
+    logger.debug(f'Theta1 = {regression.coef_[0]}')
     df["predicted"] = regression.predict(x_)
-
-    print(f'test_me = {240000*regression.coef_[0] + regression.intercept_}')
-
-    list_ = [f'θ{e + 1}' for e in range(0, len(regression.coef_[0]))]
-
-    print(list_)
 
     coefs = {'θ0': regression.intercept_[0]}
     coefs.update(zip([f'θ{e + 1}' for e in range(0, len(regression.coef_[0]))], list(regression.coef_[0])))
 
-    print(coefs)
+    # Meth 3 ------------------------
+
+    logger.debug(f'coefs = {coefs}')
 
     # Saving coefs and metrics into METRICS_DIR
     os.makedirs('thetas', exist_ok=True)
@@ -100,7 +124,7 @@ def extract_data(_file):
     plt.style.use('ggplot')
     fig, ax1 = plt.subplots()
     fig.set_figheight(5.5)
-    fig.set_figwidth(12.5)
+    fig.set_figwidth(7.5)
     ax1.set_title(f'ft_linear_regression, Reliability : R² = {sklearn.metrics.r2_score(df["predicted"], y_):.4f}',
                   fontsize=14)
     ax1.set_xlabel(f'{EXP_COL[0]}')
