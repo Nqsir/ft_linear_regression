@@ -196,14 +196,19 @@ def parsing():
 
 
 if __name__ == '__main__':
+    # Parse arguments and create the logger
     args, logger = parsing()
     logger.debug(f'Logger created in {inspect.currentframe().f_code.co_name}')
-    file = os.path.join(os.getcwd(), args.csv_file)
 
+    file = os.path.join(os.getcwd(), args.csv_file)
     if os.path.exists(file)and os.path.isfile(file) and file.endswith('.csv'):
+
+        # Check the dataset
         err = check_data(file)
         if err:
             sys.exit(display_errors_dict(err))
+
+        # Compute thetas, metrics and plot
         compute_and_plot(file, args)
         logger.debug(f'Leaving {inspect.currentframe().f_code.co_name}')
     else:
