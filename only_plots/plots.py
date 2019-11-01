@@ -1,8 +1,8 @@
 from Headers import *
 
 
-def first_subplot(ax, mileage, price, prediction, theta0, theta1):
-    ax[0][0].set_title(f'ft_linear_regression : R² = 0.0000, θ0 = {theta0:.2f}, θ1  = {theta1:.2f}', fontsize=11)
+def first_subplot(ax, mileage, price, prediction, theta0, theta1, R2):
+    ax[0][0].set_title(f'ft_linear_regression : R² = {R2:.4f}, θ0 = {theta0:.2f}, θ1  = {theta1:.2f}', fontsize=11)
     ax[0][0].set_xlabel(f'{EXP_COL[0]}')
     ax[0][0].set_ylabel(f'{EXP_COL[1]}')
     line_0_0_1, = ax[0][0].plot(mileage, price, 'co', zorder=1, label='Dataset')
@@ -54,24 +54,28 @@ def fourth_subplot(ax, mileage, price, prediction, logger):
     ax[1][1].grid(linestyle='-', linewidth=0.5)
     ax[1][1].legend(handles=[line_1_1_1, line_1_1_2], loc=0, fontsize=11)
 
-    logger.debug(f'Test diff = {prediction - fit_scipy}\n')
+    logger.debug(f'\nTest diff = {prediction - fit_scipy}\n')
 
 
-def set_plots(mileage, price, prediction, eval_it, eval_theta0, eval_theta1, theta0, theta1, logger):
+def set_plots(mileage, price, prediction, eval_it, eval_theta0, eval_theta1, theta0, theta1, logger, R2):
+    logger.debug(f'Entering {inspect.currentframe().f_code.co_name}')
     # Set figure
     fig, ax = plt.subplots(nrows=2, ncols=2, figsize=[12, 7])
 
     # Set subplots
-    first_subplot(ax, mileage, price, prediction, theta0, theta1)
+    first_subplot(ax, mileage, price, prediction, theta0, theta1, R2)
     second_subplot(ax, eval_it, eval_theta0, eval_theta1)
     third_subplot(ax, mileage, price)
     fourth_subplot(ax, mileage, price, prediction, logger)
 
+    logger.debug(f'Plotting complete')
 
-def set_gd_plot_only(mileage, price, prediction):
+
+def set_gd_plot_only(mileage, price, prediction, logger, R2):
+    logger.debug(f'Entering {inspect.currentframe().f_code.co_name}')
     plt.style.use('ggplot')
     fig, ax = plt.subplots(nrows=1, ncols=1, figsize=[7.5, 5])
-    ax.set_title(f'ft_linear_regression, Reliability : R² = To be continued',
+    ax.set_title(f'ft_linear_regression : R² = {R2:.4f}',
                  fontsize=14)
     ax.set_xlabel(f'{EXP_COL[0]}')
     ax.set_ylabel(f'{EXP_COL[1]}')
@@ -79,3 +83,5 @@ def set_gd_plot_only(mileage, price, prediction):
     line2, = ax.plot(mileage, prediction, 'r', zorder=1, label='Predicted')
     ax.grid(linestyle='-', linewidth=1)
     ax.legend(handles=[line1, line2], loc=1, fontsize=12)
+
+    logger.debug(f'Plotting complete')
