@@ -178,12 +178,12 @@ def parsing():
     """
     parser = argparse.ArgumentParser(prog='py train.py')
     parser.add_argument('csv_file', help='A csv file containing data')
-    parser.add_argument('-d', '--debug', action='store_true', help='Debug mode', default=False)
+    parser.add_argument('-d', '--details', action='store_true', help='Detailed mode', default=False)
     parser.add_argument('-e', '--evaluate', action='store_true', help='Evaluate the model', default=False)
     _args = parser.parse_args()
     logging.getLogger('matplotlib.font_manager').disabled = True
     _logger = logging.getLogger()
-    if _args.debug:
+    if _args.details:
         _logger.setLevel(logging.DEBUG)
     else:
         _logger.setLevel(logging.INFO)
@@ -191,7 +191,7 @@ def parsing():
     stream_handler = logging.StreamHandler()
     stream_handler.setLevel(logging.DEBUG)
     _logger.addHandler(stream_handler)
-    _logger.debug('\n/*/-------\n Debug mode activated \n/*/-------\n')
+    _logger.debug('\n/*/-------\n Detailed mode activated \n/*/-------\n')
     return _args, _logger
 
 
