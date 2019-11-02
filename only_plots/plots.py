@@ -30,8 +30,8 @@ def third_subplot(ax, mileage, price):
     _price = price.reshape(-1, 1)
     regr.fit(_mileage, _price)
     predict = regr.predict(_mileage)
-    ax[1][0].set_title(f'sklearn.linear_model.LinearRegression() : R² = {sklearn.metrics.r2_score(predict, price):.4f},'
-                       f'θ0 = {regr.intercept_[0]:.2f}, θ1  = {regr.coef_[0][0]:.2f}', fontsize=8)
+    ax[1][0].set_title(f'sklearn.linear_model.LinearRegression() : R² = {sklearn.metrics.r2_score(price, predict):.4f},'
+                       f' θ0 = {regr.intercept_[0]:.2f}, θ1  = {regr.coef_[0][0]:.2f}', fontsize=8)
     ax[1][0].set_xlabel(f'{EXP_COL[0]}')
     ax[1][0].set_ylabel(f'{EXP_COL[1]}')
     line_1_0_1, = ax[1][0].plot(mileage, price, 'co', zorder=1, label='Dataset')
@@ -54,7 +54,7 @@ def fourth_subplot(ax, mileage, price, prediction, logger):
     ax[1][1].grid(linestyle='-', linewidth=0.5)
     ax[1][1].legend(handles=[line_1_1_1, line_1_1_2], loc=0, fontsize=11)
 
-    logger.debug(f'\nTest diff = {prediction - fit_scipy}\n')
+    logger.debug(f'\nDifference our prediction and scipy = {prediction - fit_scipy}\n')
 
 
 def set_plots(mileage, price, prediction, eval_it, eval_theta0, eval_theta1, theta0, theta1, logger, R2):

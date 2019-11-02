@@ -18,11 +18,12 @@ def display_errors_dict(err_):
     print(f'\n{dictionary[err[0]]}')
 
 
-def compute_metrics(mileage, price, nbr_data):
+def compute_metrics(mileage, price, prediction, nbr_data):
     """
-    Compute the metrics to get the Ordinary Least Squared (OLS)
+    Compute the metrics to get the Coefficient of determination
     :param mileage: mileage data
     :param price: price data
+    :param prediction: predicted data
     :param nbr_data: number of data
     :return: R2
     """
@@ -33,22 +34,15 @@ def compute_metrics(mileage, price, nbr_data):
     logger.debug(f'\nm_mean = \x1b[1;30;42m {m_mean:.2f} \x1b[0m')
     logger.debug(f'p_mean = \x1b[1;30;42m {p_mean:.2f} \x1b[0m\n')
 
-    # Residual Sum of Squares (SSR): Tot((each mileage - mileage_mean) * (each price - price_mean))
-    SSR = sum([(mileage[i] - m_mean) * (price[i] - p_mean) for i in range(nbr_data)])
-    logger.debug(f'\nResidual Sum of Squares = \x1b[1;30;42m {SSR:.2f} \x1b[0m')
+    # Sum of Squares due to Regression (SSR): Tot((each predicted value - price_mean)²)
+    SSR = sum([(prediction[i] - p_mean) ** 2 for i in range(nbr_data)])
+    logger.debug(f'\nSum of Squares due to Regression = \x1b[1;30;42m {SSR:.2f} \x1b[0m')
 
-    # Total Sum of Squares (SST)
-    #   (Number of data - 1) * √Tot((each mileage - mileage_mean)²) * √Tot((each price - price_mean)²
-    SST = (len(mileage) - 1) \
-          * (sum((m - m_mean) ** 2 for m in mileage) / (len(mileage) - 1)) ** (1 / 2) \
-          * (sum((p - p_mean) ** 2 for p in price) / (len(price) - 1)) ** (1 / 2)
+    # Total Sum of Squares (SST): Tot((each price - each predicted value)²)
+    SST = sum([(price[i] - prediction[i]) ** 2 for i in range(nbr_data)])
     logger.debug(f'Total Sum of Squares = \x1b[1;30;42m {SST:.2f} \x1b[0m\n')
 
-    correlation = SSR / SST
-    logger.debug(f'\nCorrelation = \x1b[1;30;42m {correlation:.4f} \x1b[0m')
-
-    # R Squared
-    R2 = correlation ** 2
+    R2 = SSR / (SST + SSR)
     logger.debug(f'R² = \x1b[1;30;42m {R2:.4f} \x1b[0m\n')
 
     return R2
@@ -87,8 +81,8 @@ def compute_and_plot(_file, _args):
     prediction = theta0 + theta1 * mileage
     logger.debug(f'\nPredicted values = {prediction}\n')
 
-    # compute and print metrics if -d activated
-    R2 = compute_metrics(mileage, price, nbr_data)
+    # Compute metrics
+    R2 = compute_metrics(mileage, price, prediction, nbr_data)
 
     # Plotting part
     plt.style.use('ggplot')
