@@ -1,4 +1,4 @@
-from Headers import *
+from header.Headers import *
 
 if __name__ == '__main__':
     file = os.path.join(os.getcwd(), 'thetas\coefs.xlsx')
@@ -12,7 +12,7 @@ if __name__ == '__main__':
         except ValueError:
             sys.exit(f'\n\x1b[1;37;41m Wrong thetas \x1b[0m\n')
     else:
-        print('thetas have not been computed, set to default')
+        print('\n\x1b[4;33mThetas have not been computed, set to default ¯\_(ツ)_/¯ \x1b[0m \n')
         theta0, theta1 = 0, 0
 
     try:

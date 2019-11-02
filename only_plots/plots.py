@@ -1,4 +1,4 @@
-from Headers import *
+from header.Headers import *
 
 
 def first_subplot(ax, mileage, price, prediction, theta0, theta1, R2):
