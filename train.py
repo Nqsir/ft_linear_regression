@@ -18,10 +18,9 @@ def display_errors_dict(err_):
     print(f'\n{dictionary[err[0]]}')
 
 
-def compute_metrics(mileage, price, prediction, nbr_data):
+def compute_metrics(price, prediction, nbr_data):
     """
     Compute the metrics to get the Coefficient of determination
-    :param mileage: mileage data
     :param price: price data
     :param prediction: predicted data
     :param nbr_data: number of data
@@ -29,9 +28,7 @@ def compute_metrics(mileage, price, prediction, nbr_data):
     """
 
     # Metrics
-    m_mean = sum(mileage) / len(mileage)
     p_mean = sum(price) / len(price)
-    logger.debug(f'\nm_mean = \x1b[1;30;42m {m_mean:.2f} \x1b[0m')
     logger.debug(f'p_mean = \x1b[1;30;42m {p_mean:.2f} \x1b[0m\n')
 
     # Sum of Squares due to Regression (SSR): Tot((each predicted value - price_mean)²)
@@ -82,7 +79,7 @@ def compute_and_plot(_file, _args):
     logger.debug(f'\nPredicted values = {prediction}\n')
 
     # Compute metrics
-    R2 = compute_metrics(mileage, price, prediction, nbr_data)
+    R2 = compute_metrics(price, prediction, nbr_data)
 
     # Plotting part
     plt.style.use('ggplot')
