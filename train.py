@@ -8,6 +8,7 @@ def display_errors_dict(err_):
     :param err_: The list returned from check_data()
     :return:
     """
+
     logger.debug(f'Entering {inspect.currentframe().f_code.co_name}')
     dictionary = {
         'col': f'Unexpected column: \x1b[1;37;41m{err_[1]} \x1b[0m\n\n',
@@ -45,16 +46,19 @@ def compute_metrics(price, prediction, nbr_data):
     return R2
 
 
-def compute_and_plot(_file, _args):
+def gradient_descent(mileage, price, nbr_data):
     """
-    Creates the model and plot results
-    :param _file: The checked_file
-    :param _args: The args dictionary from argparse
+    Make the gradient descent
+    :param mileage: mileage values
+    :param price: mileage values
+    :param nbr_data: number of data
+    :return:    theta0: The new theta0
+                theta1: The new theta1
+                eval_it: List of all iterations
+                eval_theta0: List of all tmp_theta0
+                eval_theta1: List of all tmp_theta1
     """
-    logger.debug(f'Entering {inspect.currentframe().f_code.co_name}')
-    df = pd.read_csv(_file)
-    mileage, price = df.iloc[:, 0].values, df.iloc[:, 1].values
-    nbr_data = len(mileage)
+
     theta0, theta1 = 0, 0
     prev_theta0, prev_theta1 = 1, 1
     i = 0
@@ -75,23 +79,35 @@ def compute_and_plot(_file, _args):
             eval_theta1.append(tmp_theta1)
             i += 1
 
+    return theta0, theta1, eval_it, eval_theta0, eval_theta1
+
+
+def compute_and_plot(_file, _args):
+    """
+    Creates the model and plot results
+    :param _file: The checked_file
+    :param _args: The args dictionary from argparse
+    """
+
+    logger.debug(f'Entering {inspect.currentframe().f_code.co_name}')
+    df = pd.read_csv(_file)
+    mileage, price = df.iloc[:, 0].values, df.iloc[:, 1].values
+    nbr_data = len(mileage)
+
+    # The gradient descent
+    theta0, theta1, eval_it, eval_theta0, eval_theta1 = gradient_descent(mileage, price, nbr_data)
+
+    # Predict new values
     prediction = theta0 + theta1 * mileage
     logger.debug(f'\nPredicted values = {prediction}\n')
 
     # Compute metrics
     R2 = compute_metrics(price, prediction, nbr_data)
 
-    # Plotting part
-    plt.style.use('ggplot')
-    if args.evaluate:
-        plots.set_plots(mileage, price, prediction, eval_it, eval_theta0, eval_theta1, theta0, theta1, logger, R2)
-    else:
-        plots.set_gd_plot_only(mileage, price, prediction, logger, R2)
-    plt.tight_layout()
-    plt.show()
-    plt.clf()
+    # Plots
+    plots.set_plots(_args, mileage, price, prediction, eval_it, eval_theta0, eval_theta1, theta0, theta1, logger, R2)
 
-    # Saving metrics
+    # Save metrics
     os.makedirs('thetas', exist_ok=True)
     coefs = {'θ0': theta0, 'θ1': theta1}
     df_coefs = pd.DataFrame(coefs.items(), columns=['COEFS_NAMES', 'COEFS'])
@@ -108,6 +124,7 @@ def check_data(_file):
     :param _file: A csv file
     :return: list, first element is the dictionary to raise an error, second is information to display
     """
+
     logger.debug(f'Entering {inspect.currentframe().f_code.co_name}')
     df = pd.read_csv(_file)
     act_col = list(df)
@@ -167,6 +184,7 @@ def parsing():
     Creates the logger
     :return: _args and _logger
     """
+
     parser = argparse.ArgumentParser(prog='py train.py')
     parser.add_argument('csv_file', help='A csv file containing data')
     parser.add_argument('-d', '--details', action='store_true', help='Detailed mode', default=False)

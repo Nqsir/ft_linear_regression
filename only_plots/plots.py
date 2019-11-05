@@ -57,7 +57,7 @@ def fourth_subplot(ax, mileage, price, prediction, logger):
     logger.debug(f'\nDifference our prediction and scipy = {prediction - fit_scipy}\n')
 
 
-def set_plots(mileage, price, prediction, eval_it, eval_theta0, eval_theta1, theta0, theta1, logger, R2):
+def set_subplots(mileage, price, prediction, eval_it, eval_theta0, eval_theta1, theta0, theta1, logger, R2):
     logger.debug(f'Entering {inspect.currentframe().f_code.co_name}')
     # Set figure
     fig, ax = plt.subplots(nrows=2, ncols=2, figsize=[12, 7])
@@ -85,3 +85,15 @@ def set_gd_plot_only(mileage, price, prediction, logger, R2):
     ax.legend(handles=[line1, line2], loc=1, fontsize=12)
 
     logger.debug(f'Plotting complete')
+
+
+def set_plots(args, mileage, price, prediction, eval_it, eval_theta0, eval_theta1, theta0, theta1, logger, R2):
+    logger.debug(f'Entering {inspect.currentframe().f_code.co_name}')
+    plt.style.use('ggplot')
+    if args.evaluate:
+        set_subplots(mileage, price, prediction, eval_it, eval_theta0, eval_theta1, theta0, theta1, logger, R2)
+    else:
+        set_gd_plot_only(mileage, price, prediction, logger, R2)
+    plt.tight_layout()
+    plt.show()
+    plt.clf()
