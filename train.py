@@ -120,7 +120,11 @@ def compute_and_plot(_file, _args):
 
 def check_data(_file):
     """
-    Check the potential errors in the data set
+    Check the potential errors in the data set:
+        If columns are the one expected => i.e. in EXP_COL
+        If columns have a null value
+        If columns have a wrong value
+        If columns have a negative value
     :param _file: A csv file
     :return: list, first element is the dictionary to raise an error, second is information to display
     """
