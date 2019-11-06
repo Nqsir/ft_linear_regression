@@ -6,7 +6,6 @@ def display_errors_dict(err_):
     """
     Display an error message an leave
     :param err_: The list returned from check_data()
-    :return:
     """
 
     logger.debug(f'Entering {inspect.currentframe().f_code.co_name}')
@@ -52,11 +51,11 @@ def gradient_descent(mileage, price, nbr_data):
     :param mileage: mileage values
     :param price: mileage values
     :param nbr_data: number of data
-    :return:    theta0: The new theta0
-                theta1: The new theta1
-                eval_it: List of all iterations
-                eval_theta0: List of all tmp_theta0
-                eval_theta1: List of all tmp_theta1
+    :return: theta0: The new theta0
+             theta1: The new theta1
+             eval_it: List of all iterations
+             eval_theta0: List of all tmp_theta0
+             eval_theta1: List of all tmp_theta1
     """
 
     theta0, theta1 = 0, 0
@@ -138,46 +137,18 @@ def check_data(_file):
         if col not in EXP_COL:
             return 'col', col
 
-    # If a column has a NaN value
-    errors = df.isnull().any()
-    list_err = [key for key in errors.keys()]
-    for e, err in enumerate(errors):
-        if err is True:
-            # Saving errors to display the line and column concerned
-            column = list_err[e]
-            df_values = df[df[column].isnull()]
-            line = int(df_values[column].keys()[0])
-            value = 'Null'
-
-            # And construct the line edition to display error
-            wrong = f'value: {value:}, line: {line:}, column: {column:}'
-            return 'nan', wrong
-
-    # If a column has a wrong value
-    for df_t in df.dtypes:
-        if df_t != "float64" and df_t != "int64":
-            error = df[~df.applymap(np.isreal).all(1)]
-            for it in error:
-                for e, val in enumerate(error[it]):
-                    try:
-                        val = float(val)
-                    except ValueError:
-                        column = str(it)
-                        value = str(val)
-                        line = e
-
-                        # And construct the line edition to display error
-                        wrong = f'value: {value:}, line: {line:}, column: {column:}'
-                        return 'val', wrong
-
-    # If a column has a negative value
-    wrong = ''
+    # If a column has a wrong value, a NaN value or a negative value
     for col in act_col:
-        for e, v in enumerate(df[col]):
-            if float(v) < 0:
-                wrong = f'value: {v:}, line: {e:}, column: {col:}'
-        if wrong:
-            return 'neg', wrong
+        for e, val in enumerate(df[col]):
+            try:
+                # Try wrong value
+                val = float(val)
+
+                # Check NaN or negative value
+                if np.isnan(val) or val < 0:
+                    return 'val', f'value: {val:}, line: {e:}, column: {col:}'
+            except ValueError:
+                return 'val', f'value: {val:}, line: {e:}, column: {col:}'
 
     logger.debug(f'File OK')
 
@@ -186,7 +157,7 @@ def parsing():
     """
     Parses and defines parameters
     Creates the logger
-    :return: _args and _logger
+    :return: _args, _logger
     """
 
     parser = argparse.ArgumentParser(prog='py train.py')
