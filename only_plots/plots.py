@@ -17,7 +17,7 @@ def second_subplot(ax, eval_it, eval_theta0, eval_theta1):
     ax[0][1].set_ylabel('Updated Theta0')
     line_0_1_1, = ax[0][1].plot(eval_it, eval_theta0, 'b', label='theta0', markersize='0.9', zorder=2)
     ax_0_1_2 = ax[0][1].twinx()
-    line_0_1_2, = ax_0_1_2.plot(eval_it, eval_theta1, 'g', label='thet1', markersize='0.9', zorder=1)
+    line_0_1_2, = ax_0_1_2.plot(eval_it, eval_theta1, 'g', label='theta1', markersize='0.9', zorder=1)
     ax_0_1_2.set_ylabel('Updated Theta1')
     ax[0][1].grid(linestyle='-', linewidth=0.5, zorder=3)
     ax_0_1_2.legend(handles=[line_0_1_1, line_0_1_2], loc=0, fontsize=11)

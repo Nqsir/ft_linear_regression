@@ -91,7 +91,7 @@ def compute_and_plot(_file, _args):
 
     logger.debug(f'Entering {inspect.currentframe().f_code.co_name}')
     df = pd.read_csv(_file)
-    mileage, price = df.iloc[:, 0].values, df.iloc[:, 1].values
+    mileage, price = df.loc[:, EXP_COL[0]].values, df.loc[:, EXP_COL[1]].values
     nbr_data = len(mileage)
 
     # The gradient descent
@@ -146,7 +146,7 @@ def check_data(_file):
             # Saving errors to display the line and column concerned
             column = list_err[e]
             df_values = df[df[column].isnull()]
-            line = line = int(df_values[column].keys()[0])
+            line = int(df_values[column].keys()[0])
             value = 'Null'
 
             # And construct the line edition to display error
