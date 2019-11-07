@@ -73,10 +73,8 @@ def set_subplots(mileage, price, prediction, eval_it, eval_theta0, eval_theta1, 
 
 def set_gd_plot_only(mileage, price, prediction, logger, R2):
     logger.debug(f'Entering {inspect.currentframe().f_code.co_name}')
-    plt.style.use('ggplot')
     fig, ax = plt.subplots(nrows=1, ncols=1, figsize=[7.5, 5])
-    ax.set_title(f'ft_linear_regression : R² = {R2:.4f}',
-                 fontsize=14)
+    ax.set_title(f'ft_linear_regression : R² = {R2:.4f}', fontsize=14)
     ax.set_xlabel(f'{EXP_COL[0]}')
     ax.set_ylabel(f'{EXP_COL[1]}')
     line1, = ax.plot(mileage, price, 'co', zorder=1, label='Dataset')
