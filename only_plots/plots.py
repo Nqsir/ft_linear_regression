@@ -54,7 +54,7 @@ def fourth_subplot(ax, mileage, price, prediction, logger):
     ax[1][1].grid(linestyle='-', linewidth=0.5)
     ax[1][1].legend(handles=[line_1_1_1, line_1_1_2], loc=0, fontsize=11)
 
-    logger.debug(f'\nDifference our prediction and scipy = {prediction - fit_scipy}\n')
+    logger.debug(f'\nDifference between our prediction and scipy =\n{prediction - fit_scipy}\n')
 
 
 def set_subplots(mileage, price, prediction, eval_it, eval_theta0, eval_theta1, theta0, theta1, logger, R2):

@@ -37,7 +37,7 @@ def compute_metrics(price, prediction, nbr_data):
 
     # Error Sum of Squares (SSE): Tot((each price - each predicted value)²)
     SSE = sum([(price[i] - prediction[i]) ** 2 for i in range(nbr_data)])
-    logger.debug(f'Total Sum of Squares = \x1b[1;30;42m {SST:.2f} \x1b[0m\n')
+    logger.debug(f'Error Sum of Squares = \x1b[1;30;42m {SSE:.2f} \x1b[0m\n')
 
     R2 = SSR / (SSR + SSE)
     logger.debug(f'R² = \x1b[1;30;42m {R2:.4f} \x1b[0m\n')
@@ -98,7 +98,7 @@ def compute_and_plot(_file, _args):
 
     # Predict new values
     prediction = theta0 + theta1 * mileage
-    logger.debug(f'\nPredicted values = {prediction}\n')
+    logger.debug(f'\nPredicted values =\n{prediction}\n')
 
     # Compute metrics
     R2 = compute_metrics(price, prediction, nbr_data)
