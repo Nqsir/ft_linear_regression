@@ -23,8 +23,8 @@ if __name__ == '__main__':
                 if in_put < 0:
                     sys.exit(f'\n\x1b[1;37;41m Wrong mileage \x1b[0m\n')
                 else:
-                    sys.exit(print(f'\n\x1b[1;30;42m The estimated price is: {theta0 + theta1 * in_put:.2f} \x1b[0m\n'))
+                    sys.exit(f'\n\x1b[1;30;42m The estimated price is: {theta0 + theta1 * in_put:.2f} \x1b[0m\n')
             except ValueError:
                 sys.exit(f'\n\x1b[1;37;41m Wrong mileage \x1b[0m\n')
     except KeyboardInterrupt:
-        sys.exit(print('\n\n(┬┬﹏┬┬)\n'))
+        sys.exit('\n\n(┬┬﹏┬┬)\n')
