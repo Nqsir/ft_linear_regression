@@ -1,7 +1,7 @@
 from header.Headers import *
 
 if __name__ == '__main__':
-    file = os.path.join(os.getcwd(), 'thetas\coefs.xlsx')
+    file = os.path.join(os.getcwd(), os.path.join('thetas', 'coefs.xlsx'))
     if os.path.exists(file) and os.path.isfile(file) and file.endswith('.xlsx'):
         df = pd.read_excel(file)
         theta0 = df.iloc[0, 2]
